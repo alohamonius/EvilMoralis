@@ -8,6 +8,7 @@ Added packages:
 1.
 
 npm install --save-dev @nomiclabs/hardhat-ethers ethers @nomiclabs/hardhat-waffle ethereum-waffle chai
+
 npm install --save-dev hardhat
 
 npx hardhat node - run local blockchain API
