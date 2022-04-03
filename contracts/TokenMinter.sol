@@ -19,7 +19,6 @@ contract TokenMinter is ERC721Enumerable, Ownable {
 
     constructor(
     ) ERC721("qqwe", "sxz") {
-       // baseURI = _initBaseURI;
     }
 
     function mint(uint256 _count) public payable {
