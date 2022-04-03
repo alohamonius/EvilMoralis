@@ -5,20 +5,27 @@ Added packages:
 - mocha
 - axios
 
+npm install --save-dev @nomiclabs/hardhat-ethers ethers @nomiclabs/hardhat-waffle ethereum-waffle chai
+
+npx hardhat node - run local blockchain API
+
+npm run start - run UI
+
+npx hardhat run scripts/deploy.js --network {avaxtest/polygon/localhost}
+
+
+
 For UI:
 - https://tailwindcss.com/docs/utility-first
 - https://mui.com/
 
-npm run start - run UI
-npx hardhat node - run local blockchain API
 
 npx hardhat compile - create artifacts (abi) for every smart contract. Artifacts folder better to remove before new build.
 
 npx hardhat test  - smart contract unit tests, folder (test)
 
-npx hardhat run scripts/deploy.js --network {avaxtest/polygon/localhost}
 
-npm install --save-dev @nomiclabs/hardhat-ethers ethers @nomiclabs/hardhat-waffle ethereum-waffle chai
+
 
 #Solidity console.log - way to debug contracts.
 
