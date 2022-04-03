@@ -4,11 +4,10 @@
 .infuraid
 config.js
 
-
-
 # dependencies
 /artifacts
 /node_modules
+node_modules
 /.pnp
 .pnp.js
 
@@ -40,10 +39,9 @@ yarn-error.log*
 # vercel
 .vercel
 
-node_modules
-
 #Hardhat files
 cache
 artifacts
 
 .netlify
+node_modules/.bin/_mocha
