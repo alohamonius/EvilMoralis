@@ -5,6 +5,8 @@ Added packages:
 - mocha
 - axios
 
+1.
+
 npm install --save-dev @nomiclabs/hardhat-ethers ethers @nomiclabs/hardhat-waffle ethereum-waffle chai
 
 npx hardhat node - run local blockchain API
@@ -13,6 +15,8 @@ npm run start - run UI
 
 npx hardhat run scripts/deploy.js --network {avaxtest/polygon/localhost}
 
+2. Metamask
+3. https://tokenmagic.app/#/ (add avax fuji to networks)
 
 
 For UI:
