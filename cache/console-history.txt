@@ -1,0 +1,10 @@
+w
+var w=await ethers.getContractFactory('TokenMinter')
+w.sendAsync('1','1')
+w.address()
+w
+w.MaxSupply()
+w.mintRate()
+var w=await ethers.getContractFactory('TokenMinter')
+await ethers.getContractFactory('TokenMinter')
+await ethers.getContractFactory('ExampleERC20')

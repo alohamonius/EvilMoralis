@@ -1,0 +1,23 @@
+@import '~antd/dist/antd.css';
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/*-----------------------*/
+
+.tsparticles-canvas-el{
+  background-color: #000000 !important;
+  z-index:-1 !important;
+  height:720px !important;
+
+
+}
+canvas{
+  position:absolute !important;
+}

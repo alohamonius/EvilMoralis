@@ -1,0 +1,39 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+@layer base{
+  h1,h2{
+  font-family: 'Sevillana', cursive;
+  }
+}
+#app{
+
+  min-height: 800px;
+}
+.devil-start{
+  width: 100%;
+  background-image:url('./devil.png');
+  background-repeat: no-repeat;
+  background-size: contain;
+  min-height: auto;
+  height: 70%;
+  background-position-y: 100px;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  min-height: 100%;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
