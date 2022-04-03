@@ -44,4 +44,3 @@ cache
 artifacts
 
 .netlify
-node_modules/.bin/_mocha
