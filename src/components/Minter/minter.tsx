@@ -25,7 +25,7 @@ export const Minter = () => {
                 setMintRate((await contract.mintRate()).toString());
                 setMintedPieced((await contract.totalSupply()).toString())
                 setMaxSupply((await contract.MAX_SUPPLY()).toString())
-                setBlocked(await contract.getPauseState())
+                setBlocked(((await contract.getPauseState()).toString()))
             }
 
             readContractData();
@@ -38,10 +38,11 @@ export const Minter = () => {
         const signer = await Web3Service.getMySigner()
         let contract = new ethers.Contract(MINT_CONTRACT, TokenMinter.abi, signer);
         contract.filters.Transfer(user?.get('ethAddress'));
-        contract.once("Transfer", (source, destination, value) => {
+        contract.once("Transfer", async (source, destination, value) => {
             notification.success({
                 message: `Minted from contract to ${destination}. TokenID - ${value.toString()}`,
             });
+            setMintedPieced((await contract.totalSupply()).toString())
         });
 
         try {
@@ -76,35 +77,28 @@ export const Minter = () => {
         <div>
 
 
-            <div className=''>
 
-                <div className="grid p-4 grid-cols-2 hover:grid-cols-6">
-                    <div className=''>
-                        <Image className='w-1' src='preview.gif'></Image>
-                    </div>
-
-                    <div>
-                        <div className='text-center'>
-                            <div className='mt-4'>
-                                <Image height={"50px"} width={"50px"} src='question-mark.png'></Image>
-                                <p>Mint you random NFT. One from the 2222 token could be you.</p>
-                                <h3>Price per mint: {mintRate}</h3>
-                                <h3>Minting live: {isBlocked}</h3>
-                                <h3>Supply: {mintedPieces}/{maxSupply}</h3>
-
-                            </div>
-
-                            <button className="font-bold p-4 mt-4 bg-pink-500 text-white rounded  shadow-lg" onClick={mint}> Mint you unique NFT</button>
-
+            <div className="grid p-4 grid-cols-1 hover:grid-cols-6">
+                <div className='text-center'>
+                    <div className='mt-4'>
+                        <div>
+                            <Image preview={false} height={"250px"} width={"250px"} src='preview.gif' className='block'></Image>
                         </div>
+                        <div className='mt-4'   >
+                            <Image preview={false} height={"50px"} width={"50px"} src='question-mark.png' className='block'></Image>
+                        </div>
+                        <p className='p-1'>Mint you random NFT. One from the 300 token could be you.</p>
+                        <h3>Price per mint: {mintRate}</h3>
+                        <h3>Minting live: {isBlocked ? "live" : "paused"}</h3>
+                        <h3>Supply: {mintedPieces}/{maxSupply}</h3>
+                        <button className="font-bold p-4 mt-4 bg-pink-500 text-white rounded  shadow-lg" onClick={mint}> Mint you unique NFT</button>
+
                     </div>
 
-                </div>
-                <div>
 
                 </div>
-                <h2>MINTER</h2>
             </div>
+
         </div>
 
     )
