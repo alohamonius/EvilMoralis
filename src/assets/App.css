@@ -1,5 +1,9 @@
 @import '~antd/dist/antd.css';
 
+img {
+  display: unset !important;
+}
+
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);

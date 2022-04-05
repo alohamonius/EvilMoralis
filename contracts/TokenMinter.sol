@@ -11,19 +11,18 @@ import "hardhat/console.sol";
 contract TokenMinter is ERC721Enumerable, Ownable {
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIdCounter;
-    uint256 public mintRate = 0.1 ether;
+    uint256 public mintRate = 0.3 ether;
     uint256 public MAX_SUPPLY = 300;
     bool public paused = false;
     bool public revealed = false;
     string baseURI;
 
-    constructor(
-    ) ERC721("qqwe", "sxz") {
-    }
+    constructor() ERC721("qqwe", "sxz") {}
 
     function mint(uint256 _count) public payable {
         require(totalSupply() < MAX_SUPPLY, "Can`t mint more");
         require(msg.value <= mintRate, "Check you balance");
+        require(!paused, "Sale is paused");
         uint256 tokenId = _tokenIdCounter.current();
 
         _tokenIdCounter.increment();
@@ -33,11 +32,10 @@ contract TokenMinter is ERC721Enumerable, Ownable {
     }
 
     function helloWorld() public pure returns (string memory) {
-        return "HELLO WORLD";
+        return "HELLO WORLD2";
     }
-
-    function reveal() public onlyOwner {
-        revealed = true;
+    function getPauseState() public view returns(bool){
+        return paused;
     }
 
     function pause(bool _state) public onlyOwner {
