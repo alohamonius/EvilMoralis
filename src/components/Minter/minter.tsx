@@ -11,8 +11,8 @@ import TokenMinter from '../../../artifacts/contracts/TokenMinter.sol/TokenMinte
 import { useMoralis } from 'react-moralis';
 import { notification } from 'antd';
 export const Minter = () => {
-    const { user } = useMoralis();
-    const [mintRate, setMintRate] = useState();
+    const { user, Moralis } = useMoralis();
+    const [mintRate, setMintRate] = useState(0);
     const [mintedPieces, setMintedPieced] = useState(0);
     const [maxSupply, setMaxSupply] = useState(0);
     const [isBlocked, setBlocked] = useState(false);
@@ -22,7 +22,8 @@ export const Minter = () => {
             async function readContractData() {
                 const signer = await Web3Service.getMySigner()
                 let contract = new ethers.Contract(MINT_CONTRACT, TokenMinter.abi, signer);
-                setMintRate((await contract.mintRate()).toString());
+                let rate = await contract.mintRate();
+                setMintRate(+Moralis.Units.FromWei(rate));
                 setMintedPieced((await contract.totalSupply()).toString())
                 setMaxSupply((await contract.MAX_SUPPLY()).toString())
                 setBlocked(((await contract.getPauseState()).toString()))
