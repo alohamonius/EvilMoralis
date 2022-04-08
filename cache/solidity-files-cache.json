@@ -476,8 +476,8 @@
       ]
     },
     "/Users/macbook/git-public/evilmoralis/contracts/TokenMinter.sol": {
-      "lastModificationDate": 1649161818565,
-      "contentHash": "4c7d4f8ec5c4c3cc0530fdc7e707ea3a",
+      "lastModificationDate": 1649413963441,
+      "contentHash": "8b4dd59551cfe97aacda8fdfd799f5d4",
       "sourceName": "contracts/TokenMinter.sol",
       "solcConfig": {
         "version": "0.8.4",
@@ -506,6 +506,7 @@
         "@openzeppelin/contracts/token/ERC721/ERC721.sol",
         "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol",
         "@openzeppelin/contracts/access/Ownable.sol",
+        "@openzeppelin/contracts/security/ReentrancyGuard.sol",
         "@openzeppelin/contracts/utils/Counters.sol",
         "hardhat/console.sol"
       ],
