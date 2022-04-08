@@ -24,10 +24,10 @@ export const Minter = () => {
     React.useEffect(
         () => {
             async function readContractData() {
-                const web3Provider = await Moralis.enableWeb3();
-                const contract = new ethers.Contract(MINT_CONTRACT, TokenMinter.abi, web3Provider);
+                const signer = await Web3Service.getMySigner()
+                const contract = new ethers.Contract(MINT_CONTRACT, TokenMinter.abi, signer);
 
-                let config = await contract.saleConfig();
+                const config = await contract.getSalesData();
                 debugger;
 
                 setSaleStartedAt(config.saleTime);

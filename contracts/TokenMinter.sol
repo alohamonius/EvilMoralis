@@ -13,9 +13,7 @@ contract TokenMinter is ERC721Enumerable, Ownable, ReentrancyGuard {
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIdCounter;
     uint256 public MAX_SUPPLY = 300;
-    bool public paused = false;
-    bool public revealed = false;
-    string baseURI;
+    uint32 public HOLDERS_COUNT = 0;
 
     SaleConfig public saleConfig;
 
@@ -27,6 +25,8 @@ contract TokenMinter is ERC721Enumerable, Ownable, ReentrancyGuard {
     struct SaleConfig {
         uint32 saleTime;
         uint256 mintRate;
+        bool paused;
+        string baseURI;
     }
 
     mapping(address => AddressData) private _addressData;
@@ -42,15 +42,14 @@ contract TokenMinter is ERC721Enumerable, Ownable, ReentrancyGuard {
             _saleStartTime != 0 && block.timestamp >= _saleStartTime,
             "sale has not started yet"
         );
+        require(totalSupply() < MAX_SUPPLY, "Can`t mint more");
+        require(msg.value >= saleConfig.mintRate, "Check you balance");
 
         uint256 tokenId = _tokenIdCounter.current();
         address to = msg.sender;
-
-        require(totalSupply() < MAX_SUPPLY, "Can`t mint more");
-        require(msg.value <= saleConfig.mintRate, "Check you balance");
-        require(!paused, "Sale is paused");
-
         AddressData memory addressData = _addressData[to];
+
+        require(addressData.numberMinted < 5, "Max per account reached");
 
         _addressData[to] = AddressData(
             addressData.balance + 1,
@@ -59,6 +58,10 @@ contract TokenMinter is ERC721Enumerable, Ownable, ReentrancyGuard {
         _tokenIdCounter.increment();
 
         _safeMint(to, tokenId);
+    }
+
+    function _baseURI() internal pure override returns (string memory) {
+        return "ipfs://xxx/";
     }
 
     function myMintedNumber() public view returns (uint256) {
@@ -85,12 +88,37 @@ contract TokenMinter is ERC721Enumerable, Ownable, ReentrancyGuard {
         saleConfig.saleTime = saleTime;
     }
 
-    function getPauseState() public view returns (bool) {
-        return paused;
+    function refundIfOver(uint256 price) private {
+        require(msg.value >= price, "Need to send more ETH.");
+        if (msg.value > price) {
+            payable(msg.sender).transfer(msg.value - price);
+        }
+    }
+
+    function getSaleInfo() public view returns (SaleConfig memory) {
+        return saleConfig;
+    }
+
+    function getSalesData()
+        public
+        view
+        returns (
+            uint256,
+            uint32,
+            bool,
+            string memory
+        )
+    {
+        return (
+            saleConfig.mintRate,
+            saleConfig.saleTime,
+            saleConfig.paused,
+            saleConfig.baseURI
+        );
     }
 
     function setPause(bool _state) public onlyOwner {
-        paused = _state;
+        saleConfig.paused = _state;
     }
 
     function setMintRate(uint256 _rate) public onlyOwner {
