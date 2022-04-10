@@ -11,7 +11,7 @@ describe('TokenMinter', () => {
 
     beforeEach(async function () {
         Minter = await ethers.getContractFactory("TokenMinter");
-        [owner, addr1, addr2] = await ethers.getSigners();
+        [owner, addr1, addr2, addr3] = await ethers.getSigners();
         tokenContract = await Minter.deploy();
     });
 
@@ -19,17 +19,19 @@ describe('TokenMinter', () => {
         await tokenContract.connect(addr1).mint({ from: addr1.address, value: ethers.utils.parseEther("1.0") });
         await tokenContract.connect(addr2).mint({ from: addr2.address, value: ethers.utils.parseEther("1.0") });
         await tokenContract.connect(addr2).mint({ from: addr2.address, value: ethers.utils.parseEther("1.0") });
+        await tokenContract.connect(addr3).mint({ from: addr3.address, value: ethers.utils.parseEther("100.0") });
 
         const numberMinted1 = (await tokenContract.numberMintedByAddress(addr1.address)).toString();
 
         const numberMinted2 = (await tokenContract.numberMintedByAddress(addr2.address)).toString();
 
         const contractBalance = ethers.utils.formatEther(await ethers.provider.getBalance(tokenContract.address));
+        const addr3Balance = ethers.utils.formatEther(await addr3.getBalance());
 
         assert(+numberMinted1 === 1, `${numberMinted1}`);
         assert(+numberMinted2 === 2);
-        assert(+contractBalance === 3);
-
+        assert(+contractBalance === 1.2);
+        assert(+addr3Balance > 9999);
     });
 
     it("MintedAndBalanced", async () => {
