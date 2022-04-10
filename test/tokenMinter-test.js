@@ -1,5 +1,6 @@
 const assert = require("assert");
 const { expect } = require("chai");
+const { ethers } = require("hardhat");
 
 describe('TokenMinter', () => {
     let Minter;
@@ -20,11 +21,15 @@ describe('TokenMinter', () => {
         await tokenContract.connect(addr2).mint({ from: addr2.address, value: ethers.utils.parseEther("1.0") });
 
         const numberMinted1 = (await tokenContract.numberMintedByAddress(addr1.address)).toString();
+
         const numberMinted2 = (await tokenContract.numberMintedByAddress(addr2.address)).toString();
 
+        const contractBalance = ethers.utils.formatEther(await ethers.provider.getBalance(tokenContract.address));
 
-        assert(numberMinted1 == 1, `${numberMinted1}`);
-        assert(numberMinted2 == 2);
+        assert(+numberMinted1 === 1, `${numberMinted1}`);
+        assert(+numberMinted2 === 2);
+        assert(+contractBalance === 3);
+
     });
 
     it("MintedAndBalanced", async () => {
