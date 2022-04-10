@@ -58,6 +58,8 @@ contract TokenMinter is ERC721Enumerable, Ownable, ReentrancyGuard {
         _tokenIdCounter.increment();
 
         _safeMint(to, tokenId);
+
+        refundIfOver(saleConfig.mintRate);
     }
 
     function _baseURI() internal pure override returns (string memory) {
