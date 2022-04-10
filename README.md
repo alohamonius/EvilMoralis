@@ -64,4 +64,3 @@ frpc.exe -c frpc.ini
   local_port = 8545
   custom_domains = v2a0cvictoga.usemoralis.com
   
-  test edit
