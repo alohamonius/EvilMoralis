@@ -40,4 +40,4 @@ INSTALLATION
     
 For UI:
 - https://tailwindcss.com/docs/utility-first
-- https://mui.com/
+- https://ant.design/
