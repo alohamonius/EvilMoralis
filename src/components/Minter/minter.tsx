@@ -19,6 +19,8 @@ export const Minter = () => {
     const [isBlocked, setBlocked] = useState<boolean>(false);
     const [mintedCountByAddress, setMintedCountByAddress] = useState<number>(0);
     const [saleStartedAt, setSaleStartedAt] = useState<number>();
+    const [myCount, setMyCount] = useState<number>(0);
+    const [myAddress] = useState<string>(user?.get('ethAddress'))
 
 
     React.useEffect(
@@ -27,16 +29,17 @@ export const Minter = () => {
                 const signer = await Web3Service.getMySigner()
                 const contract = new ethers.Contract(MINT_CONTRACT, TokenMinter.abi, signer);
 
-                const config = await contract.getSalesData();
-                debugger;
+                // const config = await contract.getSalesData();
+                // debugger;
 
-                setSaleStartedAt(config.saleTime);
-                setMintRate(+Moralis.Units.FromWei(config.mintRate));
-                setMintedPieced((await contract.totalSupply()).toString())
+                // setSaleStartedAt(config.saleTime);
+                // setMintRate(+Moralis.Units.FromWei(config.mintRate));
                 setMaxSupply((await contract.MAX_SUPPLY()).toString())
-                setBlocked(((await contract.getPauseState()).toString()))
 
-                setMintedCountByAddress((await contract.numberMintedByAddress()).toString())
+                let s = await contract.myMintedNumber();
+                setMyCount(s.toString());
+
+                setMintedCountByAddress((await contract.numberMintedByAddress(myAddress)).toString())
             }
 
             readContractData();
@@ -84,7 +87,7 @@ export const Minter = () => {
         });
 
         await doTransaction(
-            async () => await contract.mint(1),
+            async () => await contract.mint({value:"0.5"}),
             () => {
                 notification.success({
                     message: `Transaction executed`,
@@ -113,6 +116,7 @@ export const Minter = () => {
                         <h3>Minting live: {isBlocked ? "live" : "paused"}</h3>
                         <h3>Supply: {mintedPieces}/{maxSupply}</h3>
                         <h3>Minted by you account :{mintedCountByAddress}</h3>
+                        <h3>Minted by you account: {myCount}</h3>
                         <Button className="font-bold p-4 mt-4 bg-pink-500 text-white rounded  shadow-lg" onClick={doMint}>Mint you unique NFT</Button>
 
                     </div>

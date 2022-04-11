@@ -476,8 +476,8 @@
       ]
     },
     "/Users/macbook/git-public/evilmoralis/contracts/TokenMinter.sol": {
-      "lastModificationDate": 1649426407623,
-      "contentHash": "6530843d0d681c279fb345cc599a65f4",
+      "lastModificationDate": 1649588531862,
+      "contentHash": "bb5549b98f6fb093bd3b0979e09ce800",
       "sourceName": "contracts/TokenMinter.sol",
       "solcConfig": {
         "version": "0.8.4",
@@ -508,6 +508,7 @@
         "@openzeppelin/contracts/access/Ownable.sol",
         "@openzeppelin/contracts/security/ReentrancyGuard.sol",
         "@openzeppelin/contracts/utils/Counters.sol",
+        "@openzeppelin/contracts/utils/Strings.sol",
         "hardhat/console.sol"
       ],
       "versionPragmas": [
