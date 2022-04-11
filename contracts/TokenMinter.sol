@@ -13,7 +13,7 @@ import "hardhat/console.sol";
 contract TokenMinter is ERC721Enumerable, Ownable, ReentrancyGuard {
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIdCounter;
-    Counters.Counter public mintedCount;
+    Counters.Counter private _mintedCount;
     uint256 public MAX_SUPPLY = 50;
     uint32 public HOLDERS_COUNT = 0;
     string private baseExtension = ".json";
@@ -42,7 +42,8 @@ contract TokenMinter is ERC721Enumerable, Ownable, ReentrancyGuard {
     constructor() ERC721("ALOHATOKEN", "ALT") {
         saleConfig.saleTime = 1640444162;
         saleConfig.mintRate = 0.3 ether;
-        setBaseURI("ipfs://QmXgMDuRGVEwPTWq7NDC2fuyVCQkY9E2gCB3qUKuJ8Hdhw");
+        saleConfig.paused = false;
+        setBaseURI("ipfs://QmXgMDuRGVEwPTWq7NDC2fuyVCQkY9E2gCB3qUKuJ8Hdhw/");
         setNotRevealedURI("");
     }
 
@@ -54,7 +55,7 @@ contract TokenMinter is ERC721Enumerable, Ownable, ReentrancyGuard {
 
         require(
             _saleStartTime != 0 && block.timestamp >= _saleStartTime,
-            "sale has not started yet"
+            "Sale has not started yet"
         );
         if (onlyWhitelisted == true) {
             require(
@@ -71,9 +72,10 @@ contract TokenMinter is ERC721Enumerable, Ownable, ReentrancyGuard {
             addressData.balance + 1,
             addressData.numberMinted + 1
         );
-        _tokenIdCounter.increment();
-        _safeMint(to, tokenId);
 
+        _safeMint(to, tokenId);
+        _tokenIdCounter.increment();
+        _mintedCount.increment();
         refundIfOver(saleConfig.mintRate);
     }
 
@@ -183,6 +185,10 @@ contract TokenMinter is ERC721Enumerable, Ownable, ReentrancyGuard {
             saleConfig.paused,
             saleConfig.baseURI
         );
+    }
+
+    function getMintedCount() public view returns (uint256) {
+        return _mintedCount.current();
     }
 
     function reveal() public onlyOwner {

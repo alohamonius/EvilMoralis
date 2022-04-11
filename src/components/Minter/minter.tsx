@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { create as ipfsHttpClient } from 'ipfs-http-client'
-import { Contract, ethers } from 'ethers'
+import { BigNumber, Contract, ethers } from 'ethers'
 import Web3Modal from 'web3modal'
 import { Button, Image, Radio } from 'antd';
 import {
@@ -20,31 +20,45 @@ export const Minter = () => {
     const [mintedCountByAddress, setMintedCountByAddress] = useState<number>(0);
     const [saleStartedAt, setSaleStartedAt] = useState<number>();
     const [myCount, setMyCount] = useState<number>(0);
-    const [myAddress] = useState<string>(user?.get('ethAddress'))
-
+    const [myAddress,setMyAddress] = useState<string>()
+    const [myTokenIds, setMyTokenIds] = useState<any>();
+    const [myNftItems, setMyNftItems] = useState<any>();
 
     React.useEffect(
         () => {
             async function readContractData() {
-                const signer = await Web3Service.getMySigner()
-                const contract = new ethers.Contract(MINT_CONTRACT, TokenMinter.abi, signer);
+                if (!user) {
+                    return;
+                }
+                setMyAddress(user?.get('ethAddress'));
+                const contract = await createContract();
+                const maxSupply = await contract.MAX_SUPPLY();
+                const config = await contract.getSalesData();
 
-                // const config = await contract.getSalesData();
-                // debugger;
 
-                // setSaleStartedAt(config.saleTime);
-                // setMintRate(+Moralis.Units.FromWei(config.mintRate));
-                setMaxSupply((await contract.MAX_SUPPLY()).toString())
 
-                let s = await contract.myMintedNumber();
-                setMyCount(s.toString());
-
-                setMintedCountByAddress((await contract.numberMintedByAddress(myAddress)).toString())
+                const tokenIds = await contract.walletOfOwner(myAddress);
+                setMyTokenIds(tokenIds);
+                setMintRate(+Moralis.Units.FromWei(config[0]));
+                setSaleStartedAt(config[1]);
+                setBlocked(config[2]);
+                setMaxSupply(maxSupply.toString());
+                setMyCount((await contract.myMintedNumber()).toString());
+                setMintedPieced((await contract.getMintedCount()).toString());
+                debugger;
+                var myItems = await generateItems();
+                setMyNftItems(myItems);
             }
 
             readContractData();
-        }, []
+        }, [user]
     );
+
+    const createContract = async (): Promise<ethers.Contract> => {
+        const signer = await Web3Service.getMySigner()
+        const contract = new ethers.Contract(MINT_CONTRACT, TokenMinter.abi, signer);
+        return contract;
+    };
 
     async function doTransaction(doTx: any, onSuccess: any, onFail: any) {
         try {
@@ -59,8 +73,7 @@ export const Minter = () => {
     };
 
     async function doPause(state: boolean) {
-        const signer = await Web3Service.getMySigner()
-        let contract = new ethers.Contract(MINT_CONTRACT, TokenMinter.abi, signer);
+        const contract = await createContract();
         await doTransaction(
             async () => await contract.pause(state),
             () => {
@@ -75,19 +88,18 @@ export const Minter = () => {
     };
 
     async function doMint() {
-        debugger;
-        const signer = await Web3Service.getMySigner()
-        let contract = new ethers.Contract(MINT_CONTRACT, TokenMinter.abi, signer);
-        contract.filters.Transfer(user?.get('ethAddress'));
+        const contract = await createContract();
+        contract.filters.Transfer(myAddress);
         contract.once("Transfer", async (source, destination, value) => {
             notification.success({
                 message: `Minted from contract to ${destination}. TokenID - ${value.toString()}`,
             });
-            setMintedPieced((await contract.totalSupply()).toString())
+            setMyTokenIds([...myTokenIds, value]);
+            setMintedPieced((await contract.totalSupply()).toString());
         });
 
         await doTransaction(
-            async () => await contract.mint({value:"0.5"}),
+            async () => await contract.mint({ value: ethers.utils.parseEther("0.3") }),
             () => {
                 notification.success({
                     message: `Transaction executed`,
@@ -97,6 +109,28 @@ export const Minter = () => {
                     message: `Transaction failer ${e.data.message}`,
                 });
             });
+    };
+
+    async function reveal() {
+        const contract = await createContract();
+        await contract.reveal();
+    }
+
+    const generateItems = async () => {
+        const contract = await createContract();
+        const tokenIds = await contract.walletOfOwner(myAddress);
+
+        const array: any = [];
+        await Promise.all(tokenIds.map(async (element: BigNumber, i: number) => {
+            const tokenId = element.toString();
+            var uri = await contract.tokenURI(element);
+
+            var qw = <p key={i}>ID: {tokenId} / URL : {uri}</p>
+            array.push(qw);
+
+        }));
+
+        return array;
     };
 
     return (
@@ -110,18 +144,21 @@ export const Minter = () => {
                         <div className='mt-4'   >
                             <Image preview={false} height={"50px"} width={"50px"} src='question-mark.png' className='block'></Image>
                         </div>
-                        <p className='p-1'>Mint you random NFT. One from the 300 token could be you.</p>
+                        <p className='p-1'>Mint you random NFT. One from the 50 token could be you.</p>
                         <h3>Price per mint: {mintRate}</h3>
                         <h3>Started At: {saleStartedAt}</h3>
                         <h3>Minting live: {isBlocked ? "live" : "paused"}</h3>
                         <h3>Supply: {mintedPieces}/{maxSupply}</h3>
-                        <h3>Minted by you account :{mintedCountByAddress}</h3>
                         <h3>Minted by you account: {myCount}</h3>
                         <Button className="font-bold p-4 mt-4 bg-pink-500 text-white rounded  shadow-lg" onClick={doMint}>Mint you unique NFT</Button>
 
                     </div>
 
                     <div className=''>
+                        My token ids:
+                        {
+                            myNftItems
+                        }
                         {
                             <p>Right now contract sale is : {isBlocked ? 'on' : 'off'}</p>
                         }
@@ -129,12 +166,15 @@ export const Minter = () => {
                         <Button className="m-4 font-bold p-4 mt-4 bg-pink-500 text-white rounded  shadow-lg" disabled={isBlocked} onClick={() => doPause(false)}> Pause on</Button>
 
                     </div>
+                    <div>
+                        <Button className="m-4 font-bold p-4 mt-4 bg-pink-500 text-white rounded  shadow-lg" onClick={reveal}> Reveal NFT URI</Button>
+
+                    </div>
 
                 </div>
             </div>
 
         </div>
-
     )
 }
 

@@ -11,7 +11,7 @@ describe('TokenMinter', () => {
 
     beforeEach(async function () {
         Minter = await ethers.getContractFactory("TokenMinter");
-        [owner, addr1, addr2, addr3] = await ethers.getSigners();
+        [owner, addr1, addr2, addr3, addr4] = await ethers.getSigners();
         tokenContract = await Minter.deploy();
     });
 
@@ -109,16 +109,14 @@ describe('TokenMinter', () => {
         assert(isThrowedException == true);
     });
 
-    it("RetireveSaleInfo", async () => {
-        const saleInfo = await tokenContract.getSaleInfo();
-        assert(saleInfo[1].toString() == ethers.utils.parseEther("0.3"), saleInfo);
+    it("UserDoMintAndCheckTokenId", async () => {
+        await tokenContract.connect(addr4).mint({ from: addr4.address, value: ethers.utils.parseEther("0.3") });
+        await tokenContract.connect(addr4).mint({ from: addr4.address, value: ethers.utils.parseEther("0.3") });
+        await tokenContract.connect(addr4).mint({ from: addr4.address, value: ethers.utils.parseEther("0.3") });
 
-    });
+        var tokenIds = await tokenContract.walletOfOwner(addr4.address);
 
-    it("RetireveSaleInfo2", async () => {
-        const saleInfo = await tokenContract.getSalesData();
-        assert(saleInfo[0].toString() == ethers.utils.parseEther("0.3"), saleInfo);
-        
+        assert(tokenIds.length == 3);
     });
 
 });

@@ -1,8 +1,15 @@
 // craco.config.js
 const CracoLessPlugin = require('craco-less');
-
+const webpack = require('webpack');
 module.exports = {
     webpack: {
+        plugins: {
+            add: [
+                new webpack.DefinePlugin({
+                    process: { env: {} }
+                })
+            ]
+        },
         configure: webpackConfig => {
             const scopePluginIndex = webpackConfig.resolve.plugins.findIndex(
                 ({ constructor }) => constructor && constructor.name === 'ModuleScopePlugin'
@@ -23,6 +30,7 @@ module.exports = {
 
     plugins: [
         {
+
             plugin: CracoLessPlugin,
             options: {
                 lessLoaderOptions: {
