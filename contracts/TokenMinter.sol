@@ -73,6 +73,8 @@ contract TokenMinter is ERC721Enumerable, Ownable, ReentrancyGuard {
         );
         _tokenIdCounter.increment();
         _safeMint(to, tokenId);
+
+        refundIfOver(saleConfig.mintRate);
     }
 
     function isWhitelisted(address _user) public view returns (bool) {
