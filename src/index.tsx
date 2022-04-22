@@ -3,21 +3,10 @@ import ReactDOM from 'react-dom';
 import './assets/index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-import { Alert } from 'antd';
 import { MoralisProvider } from "react-moralis";
 
 const URL = process.env.REACT_APP_MORALIS_URL;
 const APP_ID = process.env.REACT_APP_MORALIS_APP_ID;
-
-const AlertContext = React.createContext(null);
-AlertContext.displayName = 'AlertContext';
-
-const AlertProvider = ({ children }: any) => {
-  const [alert, setAlert] = useState();
-  const [alertText, setAlertText] = useState(null);
-
-  
-};
 
 ReactDOM.render(
   <React.StrictMode>
