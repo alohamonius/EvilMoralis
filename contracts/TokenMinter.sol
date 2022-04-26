@@ -2,6 +2,7 @@
 pragma solidity ^0.8.3;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
@@ -14,8 +15,8 @@ contract TokenMinter is ERC721Enumerable, Ownable, ReentrancyGuard {
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIdCounter;
     Counters.Counter private _mintedCount;
+    Counters.Counter public HOLDERS_COUNT;
     uint256 public MAX_SUPPLY = 50;
-    uint32 public HOLDERS_COUNT = 0;
     string private baseExtension = ".json";
     string private notRevealedUri = "";
     string private baseURI = "";
@@ -43,11 +44,10 @@ contract TokenMinter is ERC721Enumerable, Ownable, ReentrancyGuard {
         saleConfig.saleTime = 1640444162;
         saleConfig.mintRate = 0.3 ether;
         saleConfig.paused = false;
-        setBaseURI("ipfs://QmXgMDuRGVEwPTWq7NDC2fuyVCQkY9E2gCB3qUKuJ8Hdhw/");
         setNotRevealedURI("");
     }
 
-    function mint() public payable {
+    function mint(uint128 amount) public payable {
         uint256 _saleStartTime = uint256(saleConfig.saleTime);
         uint256 tokenId = _tokenIdCounter.current();
         address to = msg.sender;
@@ -66,17 +66,24 @@ contract TokenMinter is ERC721Enumerable, Ownable, ReentrancyGuard {
 
         require(totalSupply() < MAX_SUPPLY, "Can`t mint more");
         require(msg.value >= saleConfig.mintRate, "Check you balance");
+        require(amount < 5, "Maximum 5");
         require(addressData.numberMinted < 5, "Max per account reached");
+
+        if (addressData.balance == 0) {
+            HOLDERS_COUNT.increment();
+        }
 
         _addressData[to] = AddressData(
             addressData.balance + 1,
             addressData.numberMinted + 1
         );
+        for (uint128 i = 0; i < amount; i++) {
+            _safeMint(to, tokenId);
+            _tokenIdCounter.increment();
+            _mintedCount.increment();
+        }
 
-        _safeMint(to, tokenId);
-        _tokenIdCounter.increment();
-        _mintedCount.increment();
-        refundIfOver(saleConfig.mintRate);
+        refundIfOver(saleConfig.mintRate * amount);
     }
 
     function isWhitelisted(address _user) public view returns (bool) {

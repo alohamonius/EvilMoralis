@@ -2,19 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
-
-@layer base{
-  h1,h2{
-  font-family: 'Sevillana', cursive;
-  }
-}
-#app{
+#app {
 
   min-height: 800px;
 }
-.devil-start{
+
+.devil-start {
   width: 100%;
-  background-image:url('./devil.png');
+  background-image: url('./images/devil.png');
   background-repeat: no-repeat;
   background-size: contain;
   min-height: auto;

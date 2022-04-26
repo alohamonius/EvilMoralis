@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { create as ipfsHttpClient } from 'ipfs-http-client'
 import { BigNumber, Contract, ethers } from 'ethers'
 import Web3Modal from 'web3modal'
-import { Button, Image, Input, Spin } from 'antd';
+import { Button, Image, Input, Radio, Spin } from 'antd';
 import { PlusCircleOutlined } from '@ant-design/icons';
 import {
     MINT_CONTRACT
@@ -11,17 +11,17 @@ import {
 import TokenMinter from '../../../artifacts/contracts/TokenMinter.sol/TokenMinter.json'
 import { useMoralis } from 'react-moralis';
 import { notification } from 'antd';
+import Vault from './vault';
 
+import privew from '../../assets/images/preview.gif'
 export const Minter = () => {
     const { user, Moralis } = useMoralis();
     const [contractLoaded, setContractLoaded] = useState<boolean>(false);
 
-
     const [mintRate, setMintRate] = useState<number>(0);
     const [mintedPieces, setMintedPieced] = useState<number>(0);
     const [maxSupply, setMaxSupply] = useState<number>(0);
-    const [isBlocked, setBlocked] = useState<boolean>(false);
-    const [mintedCountByAddress, setMintedCountByAddress] = useState<number>(0);
+    const [paused, setPaused] = useState<boolean>(false);
     const [saleStartedAt, setSaleStartedAt] = useState<number>();
     const [myCount, setMyCount] = useState<number>(0);
     const [myAddress, setMyAddress] = useState<string>()
@@ -37,18 +37,23 @@ export const Minter = () => {
                 try {
                     const address = user?.get('ethAddress');
                     setMyAddress(address);
+                    debugger;
                     const contract = await createContract();
                     const maxSupply = await contract.MAX_SUPPLY();
                     const config = await contract.getSalesData();
 
                     const tokenIds = await contract.walletOfOwner(address);
                     setMyTokenIds(tokenIds);
+
                     setMintRate(+Moralis.Units.FromWei(config[0]));
                     setSaleStartedAt(config[1]);
-                    setBlocked(config[2]);
+                    setPaused(config[2]);
+
                     setMaxSupply(maxSupply.toString());
-                    setMyCount((await contract.myMintedNumber()).toString());
-                    setMintedPieced((await contract.getMintedCount()).toString());
+
+                    setMyCount(Number(await contract.myMintedNumber()));
+                    setMintedPieced(Number(await contract.getMintedCount()));
+
                     if (tokenIds.length > 0) {
                         var myItems = await generateItems(contract, tokenIds);
                         setMyNftItems(myItems);
@@ -57,9 +62,7 @@ export const Minter = () => {
                     setContractLoaded(true);
                 } catch (error) {
                     setContractLoaded(false);
-                    notification.error({
-                        message: `${error}`,
-                    });
+                    logError(error);
                 }
             }
 
@@ -67,13 +70,21 @@ export const Minter = () => {
         }, [user]
     );
 
-    const createContract = async (): Promise<ethers.Contract> => {
+    const createContract = async (signed: boolean = false): Promise<ethers.Contract> => {
         const web3Modal = new Web3Modal();
         const connection = await web3Modal.connect();
         const provider = new ethers.providers.Web3Provider(connection);
+        // everyone create without provider!
         const contract = new ethers.Contract(MINT_CONTRACT, TokenMinter.abi, provider.getSigner());
+
         return contract;
     };
+    const getSigner = async () => {
+        const web3Modal = new Web3Modal();
+        const connection = await web3Modal.connect();
+        const provider = new ethers.providers.Web3Provider(connection);
+        return provider
+    }
 
     async function doTransaction(doTx: any, onSuccess: any, onFail: any) {
         try {
@@ -88,7 +99,7 @@ export const Minter = () => {
     };
 
     async function doPause(state: boolean) {
-        const contract = await createContract();
+        const contract = await createContract(true);
         await doTransaction(
             async () => await contract.setPause(state),
             () => {
@@ -96,14 +107,12 @@ export const Minter = () => {
                     message: `Pause tx completed.`,
                 });
             }, (e: any) => {
-                notification.error({
-                    message: `${e.data?.message ?? e}`,
-                });
+                logError(e)
             });
     };
 
     async function doMint() {
-        const contract = await createContract();
+        const contract = await createContract(true);
         contract.filters.Transfer(myAddress);
         contract.once("Transfer", async (source, destination, value) => {
             notification.success({
@@ -114,21 +123,27 @@ export const Minter = () => {
         });
 
         await doTransaction(
-            async () => await contract.mint({ value: ethers.utils.parseEther("0.3") }),
+            async () => await contract.mint(4,{ value: ethers.utils.parseEther("0.3") }),
             () => {
                 notification.success({
                     message: `Transaction executed`,
                 });
             }, (e: any) => {
-                notification.error({
-                    message: `Transaction failer ${e.data.message}`,
-                });
+                logError(e)
             });
     };
 
+    function logError(e: any) {
+        notification.error({
+            message: `Transaction failed ${e.data?.message ?? e}`,
+        });
+    }
+
+    //setBaseURI("ipfs://QmXgMDuRGVEwPTWq7NDC2fuyVCQkY9E2gCB3qUKuJ8Hdhw/");
     async function reveal() {
         const contract = await createContract();
         await contract.reveal();
+        await contract.tokenURI('');
     }
 
     const addToMetamaskToken = async () => {
@@ -167,7 +182,6 @@ export const Minter = () => {
             var uri = await contract.tokenURI(element);
             var tokeninfoParagraph = <p key={i}>ID: {tokenId} / URL : {uri}</p>
             tokensInfo.push(tokeninfoParagraph);
-
         }));
 
         return tokensInfo;
@@ -180,16 +194,15 @@ export const Minter = () => {
                     <p className='p-1'>Mint you random NFT. One from the 50 token could be you.</p>
                     <h3>Contract: {MINT_CONTRACT}  <PlusCircleOutlined className='text-l' onClick={addToMetamaskToken} /></h3>
 
-                   
                     <h3>Price per mint: {mintRate}</h3>
                     <h3>Started At: {saleStartedAt}</h3>
-                    <h3>Minting live: {!isBlocked ? "live" : "paused"}</h3>
+                    <h3>Minting live: {!paused ? "live" : "paused"}</h3>
                     <h3>Supply: {mintedPieces}/{maxSupply}</h3>
                     <h3>Minted by you account: {myCount}</h3>
                 </>
             )
         else return <div className='mt-4'><Spin></Spin></div>
-    }
+    };
 
     return (
         <div>
@@ -197,7 +210,7 @@ export const Minter = () => {
                 <div className='text-center border-4 bg-red-500 p-10 h-full'>
                     <div className='mt-4'>
                         <div>
-                            <Image preview={false} height={"50px"} width={"50px"} src='preview.gif' className='block'></Image>
+                            <Image preview={false} height={"50px"} width={"80px"} src={privew} className='block'></Image>
                         </div>
                         <div className='mt-4'   >
                             <Image preview={false} height={"50px"} width={"50px"} src='question-mark.png' className='block'></Image>
@@ -219,29 +232,26 @@ export const Minter = () => {
 
                 </div>
                 <div className='text-center border-4 bg-red-100  p-10'>
-                    <Button className="m-4 font-bold p-4 mt-4 bg-pink-500 text-white rounded  shadow-lg" disabled={isBlocked} onClick={() => doPause(true)}> Pause off</Button>
-                    <Button className="m-4 font-bold p-4 mt-4 bg-pink-500 text-white rounded  shadow-lg" disabled={!isBlocked} onClick={() => doPause(false)}> Pause on</Button>
+                    <Button className="m-4 font-bold p-4 mt-4 bg-pink-500 text-white rounded  shadow-lg" disabled={paused} onClick={() => doPause(true)}> Pause off</Button>
+                    <Button className="m-4 font-bold p-4 mt-4 bg-pink-500 text-white rounded  shadow-lg" disabled={!paused} onClick={() => doPause(false)}> Pause on</Button>
 
                     <div>
                         <Button className="m-4 font-bold p-4 mt-4 bg-pink-500 text-white rounded  shadow-lg" onClick={reveal}> Reveal NFT URI</Button>
-
                     </div>
-
 
                     <div className='grid grid-cols-2'>
                         <div>
                             <p>Add to whitelist</p>
-                            <Input size="large" placeholder="Add to whitelist" />
+                            <Input size="large" placeholder="Add address to whitelist" />
                         </div>
                         <div>
                             <p>Whitelisted addresses:</p>
                         </div>
 
                     </div>
-
-
-
-
+                </div>
+                <div className='text-center border-4 bg-red-100  p-10'>
+                    <Vault></Vault>
                 </div>
             </div>
 

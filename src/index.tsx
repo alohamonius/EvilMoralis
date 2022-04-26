@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
 import './assets/index.css';
+import './assets/style.less';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { MoralisProvider } from "react-moralis";

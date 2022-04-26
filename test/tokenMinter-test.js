@@ -11,15 +11,15 @@ describe('TokenMinter', () => {
 
     beforeEach(async function () {
         Minter = await ethers.getContractFactory("TokenMinter");
-        [owner, addr1, addr2, addr3, addr4] = await ethers.getSigners();
+        [owner, addr1, addr2, addr3, addr4,addr5MinterMany] = await ethers.getSigners();
         tokenContract = await Minter.deploy();
     });
 
     it("TwoUsersTryToMintAndCheckBalance", async () => {
-        await tokenContract.connect(addr1).mint({ from: addr1.address, value: ethers.utils.parseEther("1.0") });
-        await tokenContract.connect(addr2).mint({ from: addr2.address, value: ethers.utils.parseEther("1.0") });
-        await tokenContract.connect(addr2).mint({ from: addr2.address, value: ethers.utils.parseEther("1.0") });
-        await tokenContract.connect(addr3).mint({ from: addr3.address, value: ethers.utils.parseEther("100.0") });
+        await tokenContract.connect(addr1).mint(1,{ from: addr1.address, value: ethers.utils.parseEther("1.0") });
+        await tokenContract.connect(addr2).mint(1,{ from: addr2.address, value: ethers.utils.parseEther("1.0") });
+        await tokenContract.connect(addr2).mint(1,{ from: addr2.address, value: ethers.utils.parseEther("1.0") });
+        await tokenContract.connect(addr3).mint(1,{ from: addr3.address, value: ethers.utils.parseEther("100.0") });
 
         const numberMinted1 = (await tokenContract.numberMintedByAddress(addr1.address)).toString();
 
@@ -39,9 +39,9 @@ describe('TokenMinter', () => {
         const ethValue = ethers.utils.formatEther(addr1Balance);
         console.log('balance:', ethValue);
 
-        await tokenContract.connect(addr1).mint({ from: addr1.address, value: ethers.utils.parseEther("1.0") });
-        await tokenContract.connect(addr2).mint({ from: addr2.address, value: ethers.utils.parseEther("1.0") });
-        await tokenContract.connect(addr2).mint({ from: addr2.address, value: ethers.utils.parseEther("1.0") });
+        await tokenContract.connect(addr1).mint(1,{ from: addr1.address, value: ethers.utils.parseEther("1.0") });
+        await tokenContract.connect(addr2).mint(1,{ from: addr2.address, value: ethers.utils.parseEther("1.0") });
+        await tokenContract.connect(addr2).mint(1,{ from: addr2.address, value: ethers.utils.parseEther("1.0") });
 
         const addr1Tokens = (await tokenContract.balanceOf(addr1.address)).toString();
 
@@ -56,9 +56,9 @@ describe('TokenMinter', () => {
         const ethValue = ethers.utils.formatEther(addr1Balance);
         console.log('balance:', ethValue);
 
-        await tokenContract.connect(owner).mint({ from: owner.address, value: ethers.utils.parseEther("0.3") });
-        await tokenContract.connect(owner).mint({ from: owner.address, value: ethers.utils.parseEther("0.3") });
-        await tokenContract.connect(owner).mint({ from: owner.address, value: ethers.utils.parseEther("0.3") });
+        await tokenContract.connect(owner).mint(1,{ from: owner.address, value: ethers.utils.parseEther("0.3") });
+        await tokenContract.connect(owner).mint(1,{ from: owner.address, value: ethers.utils.parseEther("0.3") });
+        await tokenContract.connect(owner).mint(1,{ from: owner.address, value: ethers.utils.parseEther("0.3") });
 
         const addr1Tokens = (await tokenContract.balanceOf(owner.address)).toString();
 
@@ -70,11 +70,11 @@ describe('TokenMinter', () => {
         const ethValue = ethers.utils.formatEther(addr1Balance);
         console.log('balance:', ethValue);
 
-        await tokenContract.connect(addr2).mint({ from: addr2.address, value: ethers.utils.parseEther("1.0") });
-        await tokenContract.connect(addr2).mint({ from: addr2.address, value: ethers.utils.parseEther("1.0") });
-        await tokenContract.connect(addr2).mint({ from: addr2.address, value: ethers.utils.parseEther("1.0") });
-        await tokenContract.connect(addr2).mint({ from: addr2.address, value: ethers.utils.parseEther("1.0") });
-        await tokenContract.connect(addr2).mint({ from: addr2.address, value: ethers.utils.parseEther("1.0") });
+        await tokenContract.connect(addr2).mint(1,{ from: addr2.address, value: ethers.utils.parseEther("1.0") });
+        await tokenContract.connect(addr2).mint(1,{ from: addr2.address, value: ethers.utils.parseEther("1.0") });
+        await tokenContract.connect(addr2).mint(1,{ from: addr2.address, value: ethers.utils.parseEther("1.0") });
+        await tokenContract.connect(addr2).mint(1,{ from: addr2.address, value: ethers.utils.parseEther("1.0") });
+        await tokenContract.connect(addr2).mint(1,{ from: addr2.address, value: ethers.utils.parseEther("1.0") });
 
         let isFailed = false;
         try {
@@ -90,7 +90,7 @@ describe('TokenMinter', () => {
         const addr1BalanceBefore = await addr1.getBalance();
         const ethValueBefore = ethers.utils.formatEther(addr1BalanceBefore);
 
-        await tokenContract.connect(addr1).mint({ from: addr1.address, value: ethers.utils.parseEther("1.0") });
+        await tokenContract.connect(addr1).mint(1,{ from: addr1.address, value: ethers.utils.parseEther("1.0") });
         const addr1BalanceAfter = await addr1.getBalance();
         const ethValueAfter = ethers.utils.formatEther(addr1BalanceAfter);
 
@@ -110,9 +110,18 @@ describe('TokenMinter', () => {
     });
 
     it("UserDoMintAndCheckTokenId", async () => {
-        await tokenContract.connect(addr4).mint({ from: addr4.address, value: ethers.utils.parseEther("0.3") });
-        await tokenContract.connect(addr4).mint({ from: addr4.address, value: ethers.utils.parseEther("0.3") });
-        await tokenContract.connect(addr4).mint({ from: addr4.address, value: ethers.utils.parseEther("0.3") });
+        await tokenContract.connect(addr4).mint(1,{ from: addr4.address, value: ethers.utils.parseEther("0.3") });
+        await tokenContract.connect(addr4).mint(1,{ from: addr4.address, value: ethers.utils.parseEther("0.3") });
+        await tokenContract.connect(addr4).mint(1,{ from: addr4.address, value: ethers.utils.parseEther("0.3") });
+
+        var tokenIds = await tokenContract.walletOfOwner(addr4.address);
+
+        assert(tokenIds.length == 3);
+    });
+
+
+    it("UserDoMintAndCheckTokenId", async () => {
+        await tokenContract.connect(addr4).mint(5,{ from: addr5MinterMany.address, value: ethers.utils.parseEther("0.3") });
 
         var tokenIds = await tokenContract.walletOfOwner(addr4.address);
 
