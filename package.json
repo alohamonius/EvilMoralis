@@ -34,7 +34,7 @@
     "build": "craco build",
     "test": "craco test",
     "eject": "react-scripts eject",
-    "contract": "npx hardhat run scripts/deploy.js --network avaxtest",
+    "contract": "npx hardhat run scripts/deploy.js --network hardhat",
     "contractTest": "npx hardhat test"
   },
   "eslintConfig": {

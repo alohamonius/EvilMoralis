@@ -1,27 +1,44 @@
-import React from "react";
 import { useMoralis } from "react-moralis";
 import {
   BrowserRouter as Router,
   Routes,
   Route,
-  Link
+  Link,
+  NavLink
 } from "react-router-dom";
-import DevilApp from "./components/Devil/devil";
-import { Minter } from "./components/Minter/minter";
-import { Team } from "./components/team";
+import Home from "./Home";
+import { Minter } from "./Minter/minter";
+import { Team } from "./team";
 
 export default function Header() {
 
   const { authenticate, logout, isAuthenticated, user } = useMoralis();
   const style = "uppercase font-bold md:text-2xl flex-auto border z-10 font-semibold rounded-lg shadow-md text-white bg-black h-14 hover:text-black hover:bg-white dm:text-8";
-
+  const auto = ' flex flex-auto';
   return (
     <Router>
       <div>
-        <header className="z-10 flex flex-wrap p-4 bg-black gap-4">
-          <Link to="/" className="flex flex-auto "><button className={style} onClick={() => null}>Home</button></Link>
-          <Link to="/minter" className="flex flex-auto"> <button className={style} onClick={() => null}>Mint</button></Link>
-          <Link to="/team" className="flex flex-auto"><button className={style} onClick={() => null}>Team</button></Link>
+        <header className="z-10 flex flex-wrap p-8 bg-black gap-4">
+          <NavLink
+            to="/"
+            className={({ isActive }) => (isActive ? 'active' : 'inactive') + auto}
+          >
+            <button className={style} onClick={() => null}>Home</button>
+          </NavLink>
+
+          <NavLink
+            to="/minter"
+            className={({ isActive }) => (isActive ? 'active' : 'inactive') + auto}
+          >
+            <button className={style} onClick={() => null}>Minter</button>
+          </NavLink>
+          <NavLink
+            to="/team"
+            className={({ isActive }) => (isActive ? 'active' : 'inactive') + auto}
+          >
+            <button className={style} onClick={() => null}>Team</button>
+          </NavLink>
+
           {isAuthenticated ?
             <div className="flex flex-auto gap-4 hover:basis-1/2">
               <div>
@@ -34,9 +51,7 @@ export default function Header() {
         </header>
 
         <Routes>
-          <Route path="/" element={<DevilApp />}>
-
-          </Route>
+          <Route path="/" element={<Home />}/>
           <Route path="/team" element={<Team />} />
           <Route path="/minter" element={<Minter />} />
         </Routes>

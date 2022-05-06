@@ -47,9 +47,22 @@ contract TokenMinter is ERC721Enumerable, Ownable, ReentrancyGuard {
         setNotRevealedURI("");
     }
 
+    function randomNum(
+        uint256 _mod,
+        uint256 _seed,
+        uint256 _salt
+    ) public view returns (uint256) {
+        uint256 num = uint256(
+            keccak256(
+                abi.encodePacked(block.timestamp, msg.sender, _seed, _salt)
+            )
+        ) % _mod;
+        return num;
+    }
+
     function mint(uint128 amount) public payable {
         uint256 _saleStartTime = uint256(saleConfig.saleTime);
-        uint256 tokenId = _tokenIdCounter.current();
+        uint256 lastTokenId = _tokenIdCounter.current();
         address to = msg.sender;
         AddressData memory addressData = _addressData[to];
 
@@ -64,9 +77,10 @@ contract TokenMinter is ERC721Enumerable, Ownable, ReentrancyGuard {
             );
         }
 
-        require(totalSupply() < MAX_SUPPLY, "Can`t mint more");
+        require(totalSupply() < MAX_SUPPLY, "Limit reached");
+        require(totalSupply() + amount <= MAX_SUPPLY, "Limit reached");
         require(msg.value >= saleConfig.mintRate, "Check you balance");
-        require(amount < 5, "Maximum 5");
+        require(amount <= 5, "Maximum 5");
         require(addressData.numberMinted < 5, "Max per account reached");
 
         if (addressData.balance == 0) {
@@ -77,8 +91,8 @@ contract TokenMinter is ERC721Enumerable, Ownable, ReentrancyGuard {
             addressData.balance + 1,
             addressData.numberMinted + 1
         );
-        for (uint128 i = 0; i < amount; i++) {
-            _safeMint(to, tokenId);
+        for (uint128 i = 1; i <= amount; i++) {
+            _safeMint(to, lastTokenId + i);
             _tokenIdCounter.increment();
             _mintedCount.increment();
         }

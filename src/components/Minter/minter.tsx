@@ -14,6 +14,8 @@ import { notification } from 'antd';
 import Vault from './vault';
 
 import privew from '../../assets/images/preview.gif'
+import { addToMetamaskToken, createContract, doTransaction } from '../../Utils/utils';
+
 export const Minter = () => {
     const { user, Moralis } = useMoralis();
     const [contractLoaded, setContractLoaded] = useState<boolean>(false);
@@ -35,10 +37,11 @@ export const Minter = () => {
                     return;
                 }
                 try {
+
                     const address = user?.get('ethAddress');
                     setMyAddress(address);
-                    debugger;
-                    const contract = await createContract();
+
+                    const contract = await initContract();
                     const maxSupply = await contract.MAX_SUPPLY();
                     const config = await contract.getSalesData();
 
@@ -70,36 +73,12 @@ export const Minter = () => {
         }, [user]
     );
 
-    const createContract = async (signed: boolean = false): Promise<ethers.Contract> => {
-        const web3Modal = new Web3Modal();
-        const connection = await web3Modal.connect();
-        const provider = new ethers.providers.Web3Provider(connection);
-        // everyone create without provider!
-        const contract = new ethers.Contract(MINT_CONTRACT, TokenMinter.abi, provider.getSigner());
-
-        return contract;
-    };
-    const getSigner = async () => {
-        const web3Modal = new Web3Modal();
-        const connection = await web3Modal.connect();
-        const provider = new ethers.providers.Web3Provider(connection);
-        return provider
+    async function initContract(){
+        return await createContract(MINT_CONTRACT, TokenMinter.abi);
     }
 
-    async function doTransaction(doTx: any, onSuccess: any, onFail: any) {
-        try {
-            let transaction = await doTx();
-
-            let tx = await transaction.wait();
-            if (tx)
-                onSuccess();
-        } catch (e: any) {
-            onFail(e);
-        }
-    };
-
     async function doPause(state: boolean) {
-        const contract = await createContract(true);
+        const contract = await initContract();
         await doTransaction(
             async () => await contract.setPause(state),
             () => {
@@ -112,8 +91,10 @@ export const Minter = () => {
     };
 
     async function doMint() {
-        const contract = await createContract(true);
+        const contract = await initContract();
+
         contract.filters.Transfer(myAddress);
+
         contract.once("Transfer", async (source, destination, value) => {
             notification.success({
                 message: `Minted from contract to ${destination}. TokenID - ${value.toString()}`,
@@ -123,7 +104,7 @@ export const Minter = () => {
         });
 
         await doTransaction(
-            async () => await contract.mint(4,{ value: ethers.utils.parseEther("0.3") }),
+            async () => await contract.mint(4, { value: ethers.utils.parseEther("0.3") }),
             () => {
                 notification.success({
                     message: `Transaction executed`,
@@ -137,43 +118,15 @@ export const Minter = () => {
         notification.error({
             message: `Transaction failed ${e.data?.message ?? e}`,
         });
+        console.log(e);
     }
 
     //setBaseURI("ipfs://QmXgMDuRGVEwPTWq7NDC2fuyVCQkY9E2gCB3qUKuJ8Hdhw/");
     async function reveal() {
-        const contract = await createContract();
+        const contract = await initContract();
         await contract.reveal();
         await contract.tokenURI('');
-    }
-
-    const addToMetamaskToken = async () => {
-        const tokenAddress = MINT_CONTRACT;
-        const tokenSymbol = 'ALT';
-        const tokenDecimals = 0;
-
-        try {
-            // wasAdded is a boolean. Like any RPC method, an error may be thrown.
-            const wasAdded = await window.ethereum.request({
-                method: 'wallet_watchAsset',
-                params: {
-                    type: 'ERC20', // Initially only supports ERC20, but eventually more!
-                    options: {
-                        address: tokenAddress, // The address that the token is at.
-                        symbol: tokenSymbol, // A ticker symbol or shorthand, up to 5 chars.
-                        decimals: tokenDecimals, // The number of decimals in the token
-                    },
-                },
-            });
-
-            if (wasAdded) {
-                console.log('Thanks for your interest!');
-            } else {
-                console.log('Your loss!');
-            }
-        } catch (error) {
-            console.log(error);
-        }
-    }
+    }   
 
     const generateItems = async (contract: ethers.Contract, tokenIds: any[]) => {
         const tokensInfo: any = [];
@@ -191,23 +144,23 @@ export const Minter = () => {
         if (contractLoaded)
             return (
                 <>
-                    <p className='p-1'>Mint you random NFT. One from the 50 token could be you.</p>
-                    <h3>Contract: {MINT_CONTRACT}  <PlusCircleOutlined className='text-l' onClick={addToMetamaskToken} /></h3>
+                    <p className='text-white p-1'>Mint you random NFT. One from the 50 token could be you.</p>
+                    <h3 className='text-white p-1'>Contract: {MINT_CONTRACT}  <PlusCircleOutlined className='text-l' onClick={() => addToMetamaskToken(MINT_CONTRACT, "ALT", 0)} /></h3>
 
-                    <h3>Price per mint: {mintRate}</h3>
-                    <h3>Started At: {saleStartedAt}</h3>
-                    <h3>Minting live: {!paused ? "live" : "paused"}</h3>
-                    <h3>Supply: {mintedPieces}/{maxSupply}</h3>
-                    <h3>Minted by you account: {myCount}</h3>
+                    <h3 className='text-white p-1'>Price per mint: {mintRate}</h3>
+                    <h3 className='text-white p-1'>Started At: {saleStartedAt}</h3>
+                    <h3 className='text-white p-1'>Minting live: {!paused ? "live" : "paused"}</h3>
+                    <h3 className='text-white p-1'>Supply: {mintedPieces}/{maxSupply}</h3>
+                    <h3 className='text-white p-1'>Minted by you account: {myCount}</h3>
                 </>
             )
         else return <div className='mt-4'><Spin></Spin></div>
     };
 
     return (
-        <div>
-            <div className="grid p-4 grid-cols-2 ">
-                <div className='text-center border-4 bg-red-500 p-10 h-full'>
+        <>
+            <div className="grid p-4 grid-cols-2 h-full">
+                <div className='text-center border-4 p-10 h-full'>
                     <div className='mt-4'>
                         <div>
                             <Image preview={false} height={"50px"} width={"80px"} src={privew} className='block'></Image>
@@ -221,7 +174,7 @@ export const Minter = () => {
 
                     </div>
                 </div>
-                <div className='text-center border-4 bg-red-300'>
+                <div className='text-center border-4'>
                     <div className=''>
                         My token ids:
                         {
@@ -231,7 +184,7 @@ export const Minter = () => {
                     </div>
 
                 </div>
-                <div className='text-center border-4 bg-red-100  p-10'>
+                <div className='text-center border-4  p-10'>
                     <Button className="m-4 font-bold p-4 mt-4 bg-pink-500 text-white rounded  shadow-lg" disabled={paused} onClick={() => doPause(true)}> Pause off</Button>
                     <Button className="m-4 font-bold p-4 mt-4 bg-pink-500 text-white rounded  shadow-lg" disabled={!paused} onClick={() => doPause(false)}> Pause on</Button>
 
@@ -250,11 +203,11 @@ export const Minter = () => {
 
                     </div>
                 </div>
-                <div className='text-center border-4 bg-red-100  p-10'>
+                <div className='text-center border-4   p-10'>
                     <Vault></Vault>
                 </div>
             </div>
 
-        </div>
+        </>
     )
 }

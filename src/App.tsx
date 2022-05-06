@@ -1,13 +1,10 @@
-import { useMoralis } from "react-moralis";
 import './assets/App.css';
-import Header from './Header';
+import Header from './components/Header';
 
 function App() {
-  const { authenticate, logout, isAuthenticated, user } = useMoralis();
-
   return (
     <>
-      <div id="app" className="h-96 md:bg-top sm:bg-bottom">
+      <div >
         <Header></Header>
       </div></>
   );

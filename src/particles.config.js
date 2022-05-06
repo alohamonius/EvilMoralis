@@ -12,7 +12,7 @@ const particlesConfig = {
         mode: "push",
       },
       onHover: {
-        enable: false,
+        enable: true,
         mode: "repulse",
       },
       resize: true,

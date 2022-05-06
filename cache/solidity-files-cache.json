@@ -373,8 +373,8 @@
       ]
     },
     "/Users/macbook/git-public/evilmoralis/contracts/TokenMinter.sol": {
-      "lastModificationDate": 1650734876775,
-      "contentHash": "f948536b29b6fe2ce6f8d823f33d5ee3",
+      "lastModificationDate": 1651844241916,
+      "contentHash": "7b82f31dcdadb3f03b426e5c0e6f4f00",
       "sourceName": "contracts/TokenMinter.sol",
       "solcConfig": {
         "version": "0.8.4",
