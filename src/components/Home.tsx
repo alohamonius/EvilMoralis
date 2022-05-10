@@ -53,8 +53,8 @@ function Home() {
     return (
         <div id="home">
             <Particles options={ParticlesConfig as ISourceOptions} init={particlesInit} loaded={particlesLoaded} />
-            <section className="welcome h-full">
-                <div className="devil-start bg-center flex  flex-col">
+            <section className="welcome h-full pt-32">
+                <div className="devil-start bg-center flex flex-col">
                     <p className="text-opacity-70 uppercase text-center block z-20 text-gray-100 font-thin text-4xl md:text-8xl pb-40">Introduce you niggas to the new swag</p>
                 </div>
             </section>

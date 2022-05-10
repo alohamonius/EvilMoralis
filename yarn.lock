@@ -14570,6 +14570,11 @@
     "rc-resize-observer" "^1.0.0"
     "rc-util" "^5.15.0"
 
+"react-animations@^1.0.0":
+  "integrity" "sha512-ePPpVgdKnNEXm+LP1ww5s3n0JzebBw9QdRfxRqogzeg1PDIn6kf0pmvgeTeVZQXXpGmHImkIeTiaQR1O6xjntA=="
+  "resolved" "https://registry.npmjs.org/react-animations/-/react-animations-1.0.0.tgz"
+  "version" "1.0.0"
+
 "react-app-polyfill@^2.0.0":
   "integrity" "sha512-0sF4ny9v/B7s6aoehwze9vJNWcmCemAUYBVasscVr92+UYiEqDXOxfKjXN685mDaMRNF3WdhHQs76oTODMocFA=="
   "resolved" "https://registry.npmjs.org/react-app-polyfill/-/react-app-polyfill-2.0.0.tgz"

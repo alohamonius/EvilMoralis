@@ -17,8 +17,8 @@ export default function Header() {
   const auto = ' flex flex-auto';
   return (
     <Router>
-      <div>
-        <header className="z-10 flex flex-wrap p-8 bg-black gap-4">
+      <>
+        <header className="fixed w-full z-10 flex flex-wrap p-8 bg-black gap-4">
           <NavLink
             to="/"
             className={({ isActive }) => (isActive ? 'active' : 'inactive') + auto}
@@ -55,7 +55,7 @@ export default function Header() {
           <Route path="/team" element={<Team />} />
           <Route path="/minter" element={<Minter />} />
         </Routes>
-      </div>
+      </>
     </Router>
   );
 };

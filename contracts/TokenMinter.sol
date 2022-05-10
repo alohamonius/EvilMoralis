@@ -8,15 +8,15 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
-
 import "hardhat/console.sol";
 
 contract TokenMinter is ERC721Enumerable, Ownable, ReentrancyGuard {
     using Counters for Counters.Counter;
-    Counters.Counter private _tokenIdCounter;
-    Counters.Counter private _mintedCount;
     Counters.Counter public HOLDERS_COUNT;
     uint256 public MAX_SUPPLY = 50;
+
+    Counters.Counter private _tokenIdCounter;
+    Counters.Counter private _mintedCount;
     string private baseExtension = ".json";
     string private notRevealedUri = "";
     string private baseURI = "";
@@ -33,17 +33,21 @@ contract TokenMinter is ERC721Enumerable, Ownable, ReentrancyGuard {
     struct SaleConfig {
         uint32 saleTime;
         uint256 mintRate;
+        uint32 maximumPerAccount;
         bool paused;
         string baseURI;
     }
 
     address[] public whitelistedAddresses;
+    event Minted(address owner, uint256[] ids);
+
     mapping(address => AddressData) private _addressData;
 
     constructor() ERC721("ALOHATOKEN", "ALT") {
         saleConfig.saleTime = 1640444162;
         saleConfig.mintRate = 0.3 ether;
         saleConfig.paused = false;
+        saleConfig.maximumPerAccount = 5;
         setNotRevealedURI("");
     }
 
@@ -79,24 +83,36 @@ contract TokenMinter is ERC721Enumerable, Ownable, ReentrancyGuard {
 
         require(totalSupply() < MAX_SUPPLY, "Limit reached");
         require(totalSupply() + amount <= MAX_SUPPLY, "Limit reached");
-        require(msg.value >= saleConfig.mintRate, "Check you balance");
-        require(amount <= 5, "Maximum 5");
-        require(addressData.numberMinted < 5, "Max per account reached");
+        require(
+            msg.value * amount >= saleConfig.mintRate * amount,
+            "Check you balance"
+        );
+        require(
+            amount <= saleConfig.maximumPerAccount,
+            "Reached maximum per one time mint"
+        );
+        require(
+            addressData.numberMinted < saleConfig.maximumPerAccount,
+            "Max per account reached"
+        );
 
         if (addressData.balance == 0) {
             HOLDERS_COUNT.increment();
         }
 
-        _addressData[to] = AddressData(
-            addressData.balance + 1,
-            addressData.numberMinted + 1
-        );
+        uint256[] memory ids = new uint256[](amount);
+
         for (uint128 i = 1; i <= amount; i++) {
             _safeMint(to, lastTokenId + i);
+            ids[i - 1] = lastTokenId + i;
             _tokenIdCounter.increment();
             _mintedCount.increment();
         }
-
+        _addressData[to] = AddressData(
+            addressData.balance + amount,
+            addressData.numberMinted + amount
+        );
+        emit Minted(msg.sender, ids);
         refundIfOver(saleConfig.mintRate * amount);
     }
 
@@ -186,8 +202,10 @@ contract TokenMinter is ERC721Enumerable, Ownable, ReentrancyGuard {
         }
     }
 
-    function getSaleInfo() public view returns (SaleConfig memory) {
-        return saleConfig;
+
+    function withdraw() public payable onlyOwner {
+        (bool os, ) = payable(owner()).call{value: address(this).balance}("");
+        require(os);
     }
 
     function getSalesData()

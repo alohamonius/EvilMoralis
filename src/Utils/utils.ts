@@ -50,8 +50,14 @@ export async function createContract(contractAddress: any, abi: ContractInterfac
     const web3Modal = new Web3Modal();
     const connection = await web3Modal.connect();
     const provider = new ethers.providers.Web3Provider(connection);
-    debugger;
     const contract = new ethers.Contract(contractAddress, abi,provider.getSigner());
 
     return contract;
 };
+
+export async function lastBlock(){
+    const web3Modal = new Web3Modal();
+    const connection = await web3Modal.connect();
+    const provider = new ethers.providers.Web3Provider(connection);
+    return provider.blockNumber;
+}

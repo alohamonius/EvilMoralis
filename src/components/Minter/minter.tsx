@@ -1,8 +1,6 @@
 import React, { useState } from 'react'
-import { create as ipfsHttpClient } from 'ipfs-http-client'
 import { BigNumber, Contract, ethers } from 'ethers'
-import Web3Modal from 'web3modal'
-import { Button, Image, Input, Radio, Spin } from 'antd';
+import { Button, Image, Input, InputNumber, Radio, Spin } from 'antd';
 import { PlusCircleOutlined } from '@ant-design/icons';
 import {
     MINT_CONTRACT
@@ -29,6 +27,8 @@ export const Minter = () => {
     const [myAddress, setMyAddress] = useState<string>()
     const [myTokenIds, setMyTokenIds] = useState<any>();
     const [myNftItems, setMyNftItems] = useState<any>();
+
+    const [mintCount, setMintCount] = useState<number>(5);
 
     React.useEffect(
         () => {
@@ -61,7 +61,13 @@ export const Minter = () => {
                         var myItems = await generateItems(contract, tokenIds);
                         setMyNftItems(myItems);
                     }
-
+                    let filter = contract.filters.Transfer(null);
+                    contract.on(filter, (from, to, amount, event) => {
+                        console.log(`to: ${to}`)
+                    });
+                    // let block = await lastBlock();
+                    // var w = await contract.queryFilter(filter, block - 1000, block);
+                    // debugger;
                     setContractLoaded(true);
                 } catch (error) {
                     setContractLoaded(false);
@@ -73,7 +79,7 @@ export const Minter = () => {
         }, [user]
     );
 
-    async function initContract(){
+    async function initContract() {
         return await createContract(MINT_CONTRACT, TokenMinter.abi);
     }
 
@@ -95,16 +101,16 @@ export const Minter = () => {
 
         contract.filters.Transfer(myAddress);
 
-        contract.once("Transfer", async (source, destination, value) => {
-            notification.success({
-                message: `Minted from contract to ${destination}. TokenID - ${value.toString()}`,
-            });
-            setMyTokenIds([...myTokenIds, value]);
+        contract.on("Minted", async (source, tokenIds, value) => {
+            setMyTokenIds([...tokenIds, value]);
             setMintedPieced((await contract.totalSupply()).toString());
+            notification.success({
+                message: `Minted ${tokenIds.length} tokens`,
+            });
         });
 
         await doTransaction(
-            async () => await contract.mint(4, { value: ethers.utils.parseEther("0.3") }),
+            async () => await contract.mint(mintCount, { value: ethers.utils.parseEther('' + mintCount * mintRate) }),
             () => {
                 notification.success({
                     message: `Transaction executed`,
@@ -126,27 +132,32 @@ export const Minter = () => {
         const contract = await initContract();
         await contract.reveal();
         await contract.tokenURI('');
-    }   
+    }
+
+    async function withdraw() {
+        const contract = await initContract();
+        await contract.withdraw();
+    }
 
     const generateItems = async (contract: ethers.Contract, tokenIds: any[]) => {
         const tokensInfo: any = [];
         await Promise.all(tokenIds.map(async (element: BigNumber, i: number) => {
             const tokenId = element.toString();
             var uri = await contract.tokenURI(element);
-            var tokeninfoParagraph = <p key={i}>ID: {tokenId} / URL : {uri}</p>
+            var tokeninfoParagraph = <p className='text-white' key={i}>ID: {tokenId} / URL : {uri}</p>
             tokensInfo.push(tokeninfoParagraph);
         }));
 
         return tokensInfo;
     };
 
+    const headText = (text: string) => <h3 className='text-white p-1'>{text}</h3>;
     const TokenInfo = () => {
         if (contractLoaded)
             return (
                 <>
-                    <p className='text-white p-1'>Mint you random NFT. One from the 50 token could be you.</p>
+                    <p className='text-white p-1'>Mint you random NFT. One from the {maxSupply} token could be you.</p>
                     <h3 className='text-white p-1'>Contract: {MINT_CONTRACT}  <PlusCircleOutlined className='text-l' onClick={() => addToMetamaskToken(MINT_CONTRACT, "ALT", 0)} /></h3>
-
                     <h3 className='text-white p-1'>Price per mint: {mintRate}</h3>
                     <h3 className='text-white p-1'>Started At: {saleStartedAt}</h3>
                     <h3 className='text-white p-1'>Minting live: {!paused ? "live" : "paused"}</h3>
@@ -159,7 +170,7 @@ export const Minter = () => {
 
     return (
         <>
-            <div className="grid p-4 grid-cols-2 h-full">
+            <div className="grid p-4 grid-cols-2 h-full pt-36">
                 <div className='text-center border-4 p-10 h-full'>
                     <div className='mt-4'>
                         <div>
@@ -170,13 +181,14 @@ export const Minter = () => {
                         </div>
 
                         {TokenInfo()}
-                        <Button className="font-bold p-4 mt-4 bg-pink-500 text-white rounded  shadow-lg" onClick={doMint}>Mint you unique NFT</Button>
+                        <InputNumber min={1} max={5} defaultValue={mintCount} onChange={setMintCount} />
+                        <Button className="font-bold p-4 mt-4 bg-pink-500 text-white rounded  shadow-lg" onClick={doMint} disabled={!contractLoaded}>Mint you unique NFT</Button>
 
                     </div>
                 </div>
                 <div className='text-center border-4'>
                     <div className=''>
-                        My token ids:
+                        <h3 className='text-white p-10 mt-4 text-lg'>My token ids:</h3>
                         {
                             myNftItems
                         }
@@ -199,6 +211,9 @@ export const Minter = () => {
                         </div>
                         <div>
                             <p>Whitelisted addresses:</p>
+                        </div>
+                        <div>
+                            <Button className="m-4 font-bold p-4 mt-4 bg-pink-500 text-white rounded  shadow-lg" onClick={withdraw}> Withdraw</Button>
                         </div>
 
                     </div>
