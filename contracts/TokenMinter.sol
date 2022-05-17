@@ -10,7 +10,7 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "hardhat/console.sol";
 
-contract TokenMinter is ERC721Enumerable, Ownable, ReentrancyGuard {
+contract TokenMinter is ERC721Enumerable, Ownable, ReentrancyGuard, IERC721Receiver {
     using Counters for Counters.Counter;
     Counters.Counter public HOLDERS_COUNT;
     uint256 public MAX_SUPPLY = 50;
@@ -49,19 +49,6 @@ contract TokenMinter is ERC721Enumerable, Ownable, ReentrancyGuard {
         saleConfig.paused = false;
         saleConfig.maximumPerAccount = 5;
         setNotRevealedURI("");
-    }
-
-    function randomNum(
-        uint256 _mod,
-        uint256 _seed,
-        uint256 _salt
-    ) public view returns (uint256) {
-        uint256 num = uint256(
-            keccak256(
-                abi.encodePacked(block.timestamp, msg.sender, _seed, _salt)
-            )
-        ) % _mod;
-        return num;
     }
 
     function mint(uint128 amount) public payable {
@@ -202,7 +189,6 @@ contract TokenMinter is ERC721Enumerable, Ownable, ReentrancyGuard {
         }
     }
 
-
     function withdraw() public payable onlyOwner {
         (bool os, ) = payable(owner()).call{value: address(this).balance}("");
         require(os);
@@ -252,5 +238,16 @@ contract TokenMinter is ERC721Enumerable, Ownable, ReentrancyGuard {
 
     function setNotRevealedURI(string memory _notRevealedURI) public onlyOwner {
         notRevealedUri = _notRevealedURI;
+    }
+
+
+      function onERC721Received(
+        address,
+        address from,
+        uint256,
+        bytes calldata
+    ) external pure override returns (bytes4) {
+        require(from == address(0x0), "Cannot send nfts to Vault directly");
+        return IERC721Receiver.onERC721Received.selector;
     }
 }

@@ -9,11 +9,24 @@ import { MoralisProvider } from "react-moralis";
 const URL = process.env.REACT_APP_MORALIS_URL;
 const APP_ID = process.env.REACT_APP_MORALIS_APP_ID;
 
-ReactDOM.render(
-  <React.StrictMode>
+
+
+const Application = () => {
+  if (!APP_ID || !URL)
+    throw new Error(
+      "Missing Moralis Application ID or Server URL. Make sure to set your .env file.",
+    );
+
+  return (
     <MoralisProvider appId={APP_ID ?? "Invalid"} serverUrl={URL ?? "Invalid"}>
       <App />
     </MoralisProvider>
+  )
+};
+
+ReactDOM.render(
+  <React.StrictMode>
+    <Application></Application>
   </React.StrictMode>,
   document.getElementById('root')
 );

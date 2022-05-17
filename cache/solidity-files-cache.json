@@ -262,8 +262,8 @@
       ]
     },
     "/Users/macbook/git-public/evilmoralis/contracts/Staker.sol": {
-      "lastModificationDate": 1650796007383,
-      "contentHash": "5e405f31ee364702ec3d9513130b413a",
+      "lastModificationDate": 1652226011817,
+      "contentHash": "89c12f6f5c0c12ad7d5c90aca93ce29d",
       "sourceName": "contracts/Staker.sol",
       "solcConfig": {
         "version": "0.8.4",
@@ -292,8 +292,10 @@
         "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol",
         "@openzeppelin/contracts/access/Ownable.sol",
         "@openzeppelin/contracts/utils/Counters.sol",
+        "@openzeppelin/contracts/utils/math/SafeMath.sol",
         "./ERC20Rewards.sol",
-        "./TokenMinter.sol"
+        "./TokenMinter.sol",
+        "hardhat/console.sol"
       ],
       "versionPragmas": [
         "^0.8.3"
@@ -373,8 +375,8 @@
       ]
     },
     "/Users/macbook/git-public/evilmoralis/contracts/TokenMinter.sol": {
-      "lastModificationDate": 1652171439447,
-      "contentHash": "25243d12163767b07e37ed6812676a53",
+      "lastModificationDate": 1652226559156,
+      "contentHash": "ccb00b4415a0ce43ce913397f3e6be4e",
       "sourceName": "contracts/TokenMinter.sol",
       "solcConfig": {
         "version": "0.8.4",
@@ -934,6 +936,41 @@
       ],
       "artifacts": [
         "NFTMarket"
+      ]
+    },
+    "/Users/macbook/git-public/evilmoralis/node_modules/@openzeppelin/contracts/utils/math/SafeMath.sol": {
+      "lastModificationDate": 1648993536463,
+      "contentHash": "dcf128fca99b7d6f0746803711fa3f39",
+      "sourceName": "@openzeppelin/contracts/utils/math/SafeMath.sol",
+      "solcConfig": {
+        "version": "0.8.4",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "SafeMath"
       ]
     }
   }

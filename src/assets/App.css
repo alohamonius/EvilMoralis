@@ -8,6 +8,7 @@ img {
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
@@ -15,13 +16,20 @@ img {
 
 /*-----------------------*/
 
-.tsparticles-canvas-el{
+.tsparticles-canvas-el {
   background-color: #000000 !important;
-  z-index:-1 !important;
-  height:920px !important;
-
-
+  z-index: -1 !important;
+  height: 800px !important;
 }
-canvas{
-  position:absolute !important;
+
+canvas {}
+
+.cursor {
+  width: 2rem;
+  height: 2rem;
+  position: absolute;
+  border-radius: 50%;
+  border: 2px solid white;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
 }
