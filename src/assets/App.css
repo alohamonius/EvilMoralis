@@ -1,5 +1,9 @@
 @import '~antd/dist/antd.css';
 
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 img {
   display: unset !important;
 }
@@ -14,15 +18,47 @@ img {
   }
 }
 
+
+#app {
+  min-height: 1000px;
+}
+
+.bg-devil {
+  width: 100%;
+  background-image: url('./images/devil.png');
+  background-repeat: no-repeat;
+  background-size: contain;
+  min-height: 500px;
+  background-position-y: 100px;
+}
+
+
+html,
+body {
+  height: 100%;
+  padding: 0;
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  min-height: 100%;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
 /*-----------------------*/
 
 .tsparticles-canvas-el {
   background-color: #000000 !important;
   z-index: -1 !important;
-  height: 800px !important;
+  height: 900px !important;
 }
-
-canvas {}
 
 .cursor {
   width: 2rem;

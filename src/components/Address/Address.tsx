@@ -12,7 +12,7 @@ const Address = (props: any) => {
     }
 
     return <>
-        <button className={styles.accountButton} onClick={props.onClick}>
+        <button className={styles.accountButton} onClick={props.onClick} key={'xzc'}>
                 <Blockies
                     seed={props.address}
                     size={10}

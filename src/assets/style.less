@@ -1,12 +1,10 @@
-
-
-
 #home {
+
   h1,
   h2 {
     font-family: 'Sevillana', cursive;
   }
- 
+
   top: 5vh;
   left: 0;
   z-index: 1;
@@ -15,7 +13,7 @@
 #tsparticles {
   position: absolute;
   left: 0;
-  bottom: 0;  
+  bottom: 0;
   right: 0;
   padding: 0;
   margin: 0;
@@ -24,14 +22,53 @@
 }
 
 
-.active {
-  button {
-    background-color:white;
-    color: black;
-  }
-}
 
-.devil-start{
+.devil-start {
   animation: fadeIn;
   animation-duration: 3s;
 }
+
+
+.runnable-line {
+  display: inline-block;
+  position: relative;
+  animation: 13s linear 0s infinite normal line;
+}
+
+@keyframes line {
+  from {
+    left: -85%;
+  }
+
+  to {
+    left: 100%;
+  }
+}
+
+.borderius {
+  border-radius: 30%;
+  border-bottom: 24px solid red;
+  border-left: solid red;
+  border-right: solid red;
+  border-right-width: thin;
+}
+
+.borderius-mini{
+  .borderius;
+  border-bottom: 4px solid red;
+  &:hover { // define hover state here
+    background: red;
+  }
+}
+
+.active {
+  button {
+    background-color: red;
+    color: white;
+  }
+}
+
+// .runnable-line:hover {
+//   transform: rotate(100deg);
+//   transition-duration: 1s;
+// };

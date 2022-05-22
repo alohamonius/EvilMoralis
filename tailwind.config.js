@@ -13,7 +13,16 @@ module.exports = {
         inherit: 'inherit',
         none: 'none',
         '2': '2 2 0%',
+      },
+     
+      height: {
+        'm': '40rem',
+        'l': '50rem',
+      },
+      border:{
+        'custom':"border-bottom: 25px"
       }
+     
     },
    
   },
